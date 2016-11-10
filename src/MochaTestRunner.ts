@@ -1,16 +1,20 @@
-import {TestRunner, TestResult, RunResult, RunnerOptions, CoverageCollection} from 'stryker-api/test_runner';
-import {InputFile} from 'stryker-api/core';
 import * as path from 'path';
 import * as log4js from 'log4js';
+import { EventEmitter } from 'events';
+import { TestRunner, TestResult, RunResult, TestState, RunState, RunnerOptions, CoverageCollection } from 'stryker-api/test_runner';
+import { InputFile } from 'stryker-api/core';
+
+
 // import * as Mocha from 'mocha';
 const Mocha = require('mocha');
 import StrykerMochaReporter from './StrykerMochaReporter';
 
 const log = log4js.getLogger('MochaTestRunner');
-export default class MochaTestRunner implements TestRunner {
+export default class MochaTestRunner extends EventEmitter implements TestRunner {
   private files: InputFile[];
 
   constructor(runnerOptions: RunnerOptions) {
+    super();
     this.files = runnerOptions.files;
   }
 
@@ -31,7 +35,8 @@ export default class MochaTestRunner implements TestRunner {
           });
         } catch (error) {
           resolve({
-            result: TestResult.Error,
+            state: RunState.Error,
+            tests: [],
             errorMessages: [error]
           });
         }

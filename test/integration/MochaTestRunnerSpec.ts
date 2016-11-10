@@ -1,10 +1,18 @@
 import * as chai from 'chai';
 import MochaTestRunner from '../../src/MochaTestRunner';
-import {TestResult, RunnerOptions, RunResult} from 'stryker-api/test_runner';
+import { TestResult, RunnerOptions, RunResult, TestState, RunState } from 'stryker-api/test_runner';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as path from 'path';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
+
+const countTests = (runResult: RunResult, predicate: (result: TestResult) => boolean) =>
+  runResult.tests.filter(predicate).length;
+
+const countSucceeded = (runResult: RunResult) =>
+  countTests(runResult, t => t.state === TestState.Success);
+const countFailed = (runResult: RunResult) =>
+  countTests(runResult, t => t.state === TestState.Failed);
 
 describe('MochaTestRunner', function () {
 
@@ -19,7 +27,6 @@ describe('MochaTestRunner', function () {
         files: [
           file('./testResources/sampleProject/src/MyMath.js'),
           file('./testResources/sampleProject/test/MyMathSpec.js')],
-        coverageEnabled: false,
         strykerOptions: {},
         port: 1234
       };
@@ -31,19 +38,19 @@ describe('MochaTestRunner', function () {
         sut = new MochaTestRunner(testRunnerOptions);
       });
 
-      it('should report completed tests without coverage', () => {
-        return expect(sut.run()).to.eventually.satisfy((testResult: RunResult) => {
-          expect(testResult.succeeded).to.be.eq(5, 'Succeeded tests did not match');
-          expect(testResult.failed).to.be.eq(0, 'Failed tests did not match');
-          expect(testResult.result).to.be.eq(TestResult.Complete, 'Test result did not match');
-          expect(testResult.coverage).to.not.be.ok;
+      it('should report completed tests without coverage', () => 
+        expect(sut.run()).to.eventually.satisfy((runResult: RunResult) => {
+          expect(countSucceeded(runResult)).to.be.eq(5, 'Succeeded tests did not match');
+          expect(countFailed(runResult)).to.be.eq(0, 'Failed tests did not match');
+          runResult.tests.forEach(t => expect(t.timeSpentMs).to.be.greaterThan(-1).and.to.be.lessThan(1000) );
+          expect(runResult.state).to.be.eq(RunState.Complete, 'Test result did not match');
+          expect(runResult.coverage).to.not.be.ok;
           return true;
-        });
-      });
+        }));
 
       it('should be able to run 2 times in a row', () => {
-        return expect(sut.run().then(() => sut.run())).to.eventually.satisfy((testResult: RunResult) => {
-          expect(testResult.succeeded).to.be.eq(5);
+        return expect(sut.run().then(() => sut.run())).to.eventually.satisfy((runResult: RunResult) => {
+          expect(countSucceeded(runResult)).to.be.eq(5);
           return true;
         });
       });
@@ -63,8 +70,8 @@ describe('MochaTestRunner', function () {
         sut = new MochaTestRunner(options);
       });
 
-      it('should report completed tests without errors', () => expect(sut.run()).to.eventually.satisfy((testResult: RunResult) => {
-        expect(testResult.result).to.be.eq(TestResult.Complete, 'Test result did not match');
+      it('should report completed tests without errors', () => expect(sut.run()).to.eventually.satisfy((runResult: RunResult) => {
+        expect(runResult.state).to.be.eq(RunState.Complete, 'Test result did not match');
         return true;
       }));
     });
