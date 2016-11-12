@@ -1,4 +1,5 @@
 
+const RealDate = Date;
 export default class Timer {
   private start: Date;
 
@@ -7,10 +8,10 @@ export default class Timer {
   }
 
   reset() {
-    this.start = new Date();
+    this.start = new RealDate();
   }
 
   elapsedMs() {
-    return new Date().getTime() - this.start.getTime();
+    return new RealDate().getTime() - this.start.getTime();
   }
 }
