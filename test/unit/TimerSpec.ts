@@ -1,26 +1,23 @@
 import { expect } from 'chai';
 import Timer from '../../src/Timer';
+import * as sinon from 'sinon';
 
 describe('Timer', () => {
   let sut: Timer;
 
-  beforeEach(() => {
-    sut = new Timer();
-  });
+  beforeEach(() =>
+    sut = new Timer());
 
   describe('when global Date object is mocked', () => {
-    let RealDate = global.Date;
-    beforeEach(() => {
-      (<any>global).Date = () => ({ getTime: () => -2000 });
-    });
+    let clock: sinon.SinonFakeTimers;
+    beforeEach(() => 
+      clock = sinon.useFakeTimers());
 
-    afterEach(() => {
-      (<any>global).Date = RealDate;
-    });
+    afterEach(() => 
+      clock.restore());
 
-    it('should work even when global Date object is mocked', () => {
-      expect(sut.elapsedMs()).not.to.be.eq(-1478947128169);
-    });
+    it('should work even when global Date object is mocked', () => 
+      expect(sut.elapsedMs()).to.be.greaterThan(-1));
 
   });
 });

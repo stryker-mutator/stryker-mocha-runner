@@ -41,6 +41,8 @@
     "@types/log4js": "0.0.31",
     "@types/mocha": "^2.2.31",
     "@types/node": "^6.0.38",
+    "@types/sinon": "^1.16.31",
+    "@types/sinon-chai": "^2.7.27",
     "chai": "^3.4.1",
     "chai-as-promised": "^6.0.0",
     "concurrently": "^2.0.0",
