@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/stryker-mutator/stryker-mocha-runner#readme",
   "dependencies": {
-    "log4js": "^0.6.37"
+    "log4js": "^1.0.1"
   },
   "peerDependencies": {
     "stryker-api": "0.3.0-rc4",
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@types/chai": "^3.4.32",
-    "@types/chai-as-promised": "0.0.28",
+    "@types/chai-as-promised": "0.0.29",
     "@types/es6-promise": "0.0.31",
     "@types/log4js": "0.0.31",
     "@types/mocha": "^2.2.31",
@@ -45,7 +45,6 @@
     "@types/sinon-chai": "^2.7.27",
     "chai": "^3.4.1",
     "chai-as-promised": "^6.0.0",
-    "concurrently": "^2.0.0",
     "grunt": "^1.0.1",
     "grunt-bump": "^0.8.0",
     "grunt-cli": "^1.2.0",
