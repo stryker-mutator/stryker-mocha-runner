@@ -42,7 +42,7 @@ export default class StrykerMochaReporter {
         status: TestStatus.Failed,
         name: test.fullTitle(),
         timeSpentMs: this.timer.elapsedMs(),
-        errorMessages: [err.message]
+        failureMessages: [err.message]
       });
       this.runResult.errorMessages.push(err.message);
       log.debug(`Test failed: ${test.fullTitle()}. Error: ${err.message}`);
