@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as log4js from 'log4js';
 import { EventEmitter } from 'events';
-import { TestRunner, TestResult, RunResult, TestState, RunState, RunnerOptions, CoverageCollection } from 'stryker-api/test_runner';
+import { TestRunner, TestResult, RunResult, TestStatus, RunStatus, RunnerOptions, CoverageCollection } from 'stryker-api/test_runner';
 import { InputFile } from 'stryker-api/core';
 
 
@@ -35,7 +35,7 @@ export default class MochaTestRunner extends EventEmitter implements TestRunner 
           });
         } catch (error) {
           resolve({
-            state: RunState.Error,
+            status: RunStatus.Error,
             tests: [],
             errorMessages: [error]
           });

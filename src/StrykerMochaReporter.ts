@@ -1,4 +1,4 @@
-import { RunResult, TestResult, RunState, TestState } from 'stryker-api/test_runner';
+import { RunResult, TestResult, RunStatus, TestStatus } from 'stryker-api/test_runner';
 import * as log4js from 'log4js';
 import Timer from './Timer';
 
@@ -19,7 +19,7 @@ export default class StrykerMochaReporter {
       this.passedCount = 0;
       this.timer.reset();
       this.runResult = {
-        state: RunState.Error,
+        status: RunStatus.Error,
         tests: [],
         errorMessages: []
       };
@@ -28,7 +28,7 @@ export default class StrykerMochaReporter {
 
     this.runner.on('pass', (test: any) => {
       this.runResult.tests.push({
-        state: TestState.Success,
+        status: TestStatus.Success,
         name: test.fullTitle(),
         timeSpentMs: this.timer.elapsedMs()
       });
@@ -39,7 +39,7 @@ export default class StrykerMochaReporter {
 
     this.runner.on('fail', (test: any, err: any) => {
       this.runResult.tests.push({
-        state: TestState.Failed,
+        status: TestStatus.Failed,
         name: test.fullTitle(),
         timeSpentMs: this.timer.elapsedMs(),
         errorMessages: [err.message]
@@ -49,7 +49,7 @@ export default class StrykerMochaReporter {
     });
 
     this.runner.on('end', () => {
-      this.runResult.state = RunState.Complete;
+      this.runResult.status = RunStatus.Complete;
       (this.runResult as any).hasEnded = true;
       (this.runner as any).runResult = this.runResult;
 
