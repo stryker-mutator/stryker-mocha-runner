@@ -17,15 +17,20 @@ export default class MochaTestFramework implements TestFramework {
 
   filter(testIds: number[]) {
     return `
-    var realIt = window.it;
-    var current = 0;
-    window.it = function(){
-      if(${JSON.stringify(testIds)}.indexOf(current) >= 0){
-        realIt.apply(global, arguments);
+      var mocha = window.mocha || require('mocha');
+      if (window.____mochaAddTest) {
+        mocha.Suite.prototype.addTest = window.____mochaAddTest;
+      } else {
+        window.____mochaAddTest = mocha.Suite.prototype.addTest
       }
-      current++;
-    };
+      var current = 0;
+      var realAddTest = mocha.Suite.prototype.addTest;
+      mocha.Suite.prototype.addTest = function () {
+        if (${JSON.stringify(testIds)}.indexOf(current) > -1) {
+          realAddTest.apply(this, arguments);
+        }
+        current++;
+      };
     `;
   }
 }
- 

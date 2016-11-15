@@ -18,7 +18,8 @@ describe('MochaTestFramework', () => {
   describe('filter()', () => {
     it('should result in a filtering of mocha it\'s', () =>
       expect(sut.filter([5, 8]))
-        .to.contain('if([5,8].indexOf(current) >= 0){')
-        .and.to.contain('realIt.apply(global, arguments);'));
+        .to.contain('var realAddTest = mocha.Suite.prototype.addTest;')
+        .and.to.contain('if ([5,8].indexOf(current) > -1)')
+        .and.to.contain('realAddTest.apply(this, arguments);'));
   });
 });
