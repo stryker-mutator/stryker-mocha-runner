@@ -19,62 +19,72 @@ describe('MochaTestRunner', function () {
   let sut: MochaTestRunner;
   this.timeout(10000);
 
-  describe('when code coverage is disabled', () => {
-    let testRunnerOptions: RunnerOptions;
+  describe('when tests pass', () => {
 
-    before(() => {
-      testRunnerOptions = {
+    beforeEach(() => {
+      const testRunnerOptions = {
         files: [
           file('./testResources/sampleProject/src/MyMath.js'),
           file('./testResources/sampleProject/test/MyMathSpec.js')],
         strykerOptions: {},
         port: 1234
       };
+      sut = new MochaTestRunner(testRunnerOptions);
     });
 
-    describe('with simple add function to test', () => {
-
-      before(() => {
-        sut = new MochaTestRunner(testRunnerOptions);
-      });
-
-      it('should report completed tests without coverage', () => 
-        expect(sut.run()).to.eventually.satisfy((runResult: RunResult) => {
-          expect(countSucceeded(runResult)).to.be.eq(5, 'Succeeded tests did not match');
-          expect(countFailed(runResult)).to.be.eq(0, 'Failed tests did not match');
-          runResult.tests.forEach(t => expect(t.timeSpentMs).to.be.greaterThan(-1).and.to.be.lessThan(1000) );
-          expect(runResult.status).to.be.eq(RunStatus.Complete, 'Test result did not match');
-          expect(runResult.coverage).to.not.be.ok;
-          return true;
-        }));
-
-      it('should be able to run 2 times in a row', () => {
-        return expect(sut.run().then(() => sut.run())).to.eventually.satisfy((runResult: RunResult) => {
-          expect(countSucceeded(runResult)).to.be.eq(5);
-          return true;
-        });
-      });
-    });
-
-    describe('with an error in an unincluded input file', () => {
-      before(() => {
-        let options = {
-          files: [
-            file('testResources/sampleProject/src/MyMath.js'),
-            file('testResources/sampleProject/src/Error.js', false, false),
-            file('testResources/sampleProject/test/MyMathSpec.js')],
-          coverageEnabled: false,
-          strykerOptions: {},
-          port: 1234
-        };
-        sut = new MochaTestRunner(options);
-      });
-
-      it('should report completed tests without errors', () => expect(sut.run()).to.eventually.satisfy((runResult: RunResult) => {
+    it('should report completed tests', () =>
+      expect(sut.run()).to.eventually.satisfy((runResult: RunResult) => {
+        expect(countSucceeded(runResult)).to.be.eq(5, 'Succeeded tests did not match');
+        expect(countFailed(runResult)).to.be.eq(0, 'Failed tests did not match');
+        runResult.tests.forEach(t => expect(t.timeSpentMs).to.be.greaterThan(-1).and.to.be.lessThan(1000));
         expect(runResult.status).to.be.eq(RunStatus.Complete, 'Test result did not match');
+        expect(runResult.coverage).to.not.be.ok;
         return true;
       }));
+
+    it('should be able to run 2 times in a row', () => {
+      return expect(sut.run().then(() => sut.run())).to.eventually.satisfy((runResult: RunResult) => {
+        expect(countSucceeded(runResult)).to.be.eq(5);
+        return true;
+      });
     });
+  });
+
+  describe('with an error in an unincluded input file', () => {
+    beforeEach(() => {
+      let options = {
+        files: [
+          file('testResources/sampleProject/src/MyMath.js'),
+          file('testResources/sampleProject/src/Error.js', false, false),
+          file('testResources/sampleProject/test/MyMathSpec.js')],
+        strykerOptions: {},
+        port: 1234
+      };
+      sut = new MochaTestRunner(options);
+    });
+
+    it('should report completed tests without errors', () => expect(sut.run()).to.eventually.satisfy((runResult: RunResult) => {
+      expect(runResult.status).to.be.eq(RunStatus.Complete, 'Test result did not match');
+      return true;
+    }));
+  });
+
+  describe('with multiple failed tests', () => {
+
+    before(() => {
+      sut = new MochaTestRunner({
+        files: [
+          file('testResources/sampleProject/src/MyMath.js'),
+          file('testResources/sampleProject/test/MyMathFailedSpec.js')],
+        strykerOptions: {},
+        port: 1234
+      });
+    });
+
+    it('should only report the first failure', () => expect(sut.run()).to.eventually.satisfy((runResult: RunResult) => {
+      expect(countFailed(runResult)).to.be.eq(1);
+      return true;
+    }));
   });
 
   let file = (filePath: string, mutated: boolean = true, included: boolean = true) => ({ path: path.resolve(filePath), mutated, included });

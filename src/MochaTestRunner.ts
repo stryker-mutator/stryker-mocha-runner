@@ -26,7 +26,7 @@ export default class MochaTestRunner extends EventEmitter implements TestRunner 
     return new Promise<RunResult>((resolve, fail) => {
       try {
         this.purgeFiles();
-        let mocha = new Mocha({ reporter: StrykerMochaReporter });
+        let mocha = new Mocha({ reporter: StrykerMochaReporter, bail: true });
         this.files.filter(file => file.included).forEach(f => mocha.addFile(f.path));
         try {
           let runner: any = mocha.run((failures: number) => {
