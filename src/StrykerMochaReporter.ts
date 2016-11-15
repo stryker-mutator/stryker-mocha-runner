@@ -50,9 +50,7 @@ export default class StrykerMochaReporter {
 
     this.runner.on('end', () => {
       this.runResult.status = RunStatus.Complete;
-      (this.runResult as any).hasEnded = true;
       (this.runner as any).runResult = this.runResult;
-
       log.debug(`Mocha test run completed: ${this.passedCount}/${this.runResult.tests.length} passed`);
     });
   }
