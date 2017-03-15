@@ -17,20 +17,35 @@ export default class MochaTestFramework implements TestFramework {
 
   filter(testIds: number[]) {
     return `
-      var mocha = window.mocha || require('mocha');
+      var mocha = window.mocha;
       if (window.____mochaAddTest) {
-        mocha.Suite.prototype.addTest = window.____mochaAddTest;
+        if (mocha.Suite && mocha.Suite.prototype) {
+          mocha.Suite.prototype.addTest = window.____mochaAddTest;
+        } else {
+          mocha.suite.addTest = window.____mochaAddTest;
+        }
       } else {
-        window.____mochaAddTest = mocha.Suite.prototype.addTest
+        if (mocha.Suite && mocha.Suite.prototype) {
+          window.____mochaAddTest = mocha.Suite.prototype.addTest
+        } else {
+          window.____mochaAddTest = mocha.suite.addTest
+        }
       }
       var current = 0;
-      var realAddTest = mocha.Suite.prototype.addTest;
-      mocha.Suite.prototype.addTest = function () {
+      var realAddTest;
+      var replacementFunction = function () {
         if (${JSON.stringify(testIds)}.indexOf(current) > -1) {
           realAddTest.apply(this, arguments);
         }
         current++;
       };
+      if (mocha.Suite && mocha.Suite.prototype) {
+        realAddTest = mocha.Suite.prototype.addTest;
+        mocha.Suite.prototype.addTest = replacementFunction;
+      } else {
+        realAddTest = mocha.suite.addTest;
+        mocha.suite.addTest = replacementFunction;
+      }
     `;
   }
 }
