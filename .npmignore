@@ -1,7 +1,0 @@
-*.ts
-!*.d.ts
-Gruntfile.js
-test
-testResources
-tsconfig.json
-typings.json
